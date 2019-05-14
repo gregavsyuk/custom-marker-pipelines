@@ -4,7 +4,7 @@ pipeline {
     buildDiscarder(logRotator(numToKeepStr: '2'))
   }
   stages {
-    stage('Test){
+    stage('Test'){
       steps{
         container('nodejs'){
           echo 'Hello World!'
