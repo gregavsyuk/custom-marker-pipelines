@@ -85,31 +85,36 @@ pipeline {
         }
       }
     } 
-    stage('Build and Push Image'){
-      agent any
+    stage('Build and Push Image') {
       when {
         beforeAgent true
         branch 'master'
       }
-      steps{
-        echo "TODO - build and push image"
-        unstash 'app'
+      steps {
+        dockerBuildPush(env.IMAGE_NAME, env.IMAGE_TAG) {
+          unstash 'app'
+        }
+      }
+      post {
+        success {
+          slackSend "${JOB_NAME} pipeline job is awaiting approval at: ${RUN_DISPLAY_URL}"
+        }
       }
     }
-    stage('Deploy'){
+    stage('Deploy') {
       when {
         beforeAgent true
         branch 'master'
       }
-      options{
-        timeout(time: 30, unit: 'SECONDS')
+      options {
+        timeout(time: 60, unit: 'SECONDS') 
       }
       input {
-        message "Should we continue?"
-        submitterParameter "APRROVER"
+        message "Should we deploy?"
+        submitterParameter "APPROVER"
       }
-      steps{
-        echo "Continuing with deployment - approved by ${APPROVER}"
+      steps {
+        kubeDeploy(env.IMAGE_NAME, env.IMAGE_TAG)
       }
     }
   }
