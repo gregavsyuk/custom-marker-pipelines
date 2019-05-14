@@ -22,7 +22,6 @@ pipeline {
         echo "TODO - build and push image"
       }
     }
-  }
   stage('Deploy'){
     when {
       beforeAgent true
